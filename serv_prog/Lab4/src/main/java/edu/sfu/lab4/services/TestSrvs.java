@@ -31,8 +31,7 @@ public class TestSrvs extends DAO {
     public static int createCountry(String name, String code) {
         begin();
         Session session = getSession();
-        @SuppressWarnings("deprecation")
-		Query<?> query = session.createNativeQuery(
+        Query<?> query = session.createNativeQuery(
             "INSERT INTO Country (name, code) VALUES (:name, :code)"
         );
         query.setParameter("name", name);
