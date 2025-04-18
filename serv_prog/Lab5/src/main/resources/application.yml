@@ -1,0 +1,17 @@
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    try-it-out-enabled: true
+    config-url: /v3/api-docs/swagger-config
+    layout: StandaloneLayout
+    custom-js: /custom.js
+    custom-css: /custom.css
+  api-docs:
+    path: /v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  
+
+    
