@@ -3,6 +3,7 @@ package edu.sfu.lab5;
 import edu.sfu.lab5.services.JewelryService;
 import edu.sfu.lab5.services.TestSrvs;
 import edu.sfu.lab5.dao.*;
+import edu.sfu.lab5.manager.DAO;
 import edu.sfu.lab5.model.Country;
 import edu.sfu.lab5.model.Jewelry;
 import edu.sfu.lab5.model.JewelryType;
@@ -40,9 +41,22 @@ public class Main {
         countries.forEach(c -> System.out.println(c.getName()));
         
         // Получение всех типов украшений
-        List<JewelryType> jewelryTypes = jewelryTypeDAO.getAll();
-        System.out.println("\nJewelry Types:");
-        jewelryTypes.forEach(t -> System.out.println(t.getName()));
+        try {
+            JewelryTypeDAO dao = new JewelryTypeDAO();
+            
+            // Пример транзакции
+            DAO.begin();
+            List<JewelryType> types = dao.getAll();
+            DAO.commit();
+            
+            types.forEach(t -> System.out.println(t.getName()));
+            
+        } catch (Exception e) {
+            DAO.rollback();
+            e.printStackTrace();
+        } finally {
+            DAO.shutdown();
+        }
         
         
         
