@@ -2,20 +2,22 @@ package edu.sfu.lab5.dao;
 
 import edu.sfu.lab5.manager.DAO;
 import edu.sfu.lab5.model.JewelryType;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import java.util.List;
 
 public class JewelryTypeDAO extends BaseDAO<JewelryType> {
     public JewelryTypeDAO() {
         super(JewelryType.class);
     }
+
     public JewelryType getById(Integer id) {
-        Session session = DAO.getSession();
         try {
-            return session.get(JewelryType.class, id);
-        } finally {
-            session.close();
+            DAO.begin();
+            JewelryType jewelryType = DAO.getSession().get(JewelryType.class, id);
+            DAO.commit();
+            return jewelryType;
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
         }
     }
 
@@ -35,53 +37,41 @@ public class JewelryTypeDAO extends BaseDAO<JewelryType> {
 
     @SuppressWarnings("deprecation")
 	public Integer save(JewelryType jewelryType) {
-        Session session = DAO.getSession();
-        Transaction transaction = null;
         try {
-            transaction = session.beginTransaction();
-            Integer id = (Integer) session.save(jewelryType);
-            transaction.commit();
+            DAO.begin();
+            Integer id = (Integer) DAO.getSession().save(jewelryType);
+            DAO.commit();
             return id;
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            DAO.rollback();
             throw e;
-        } finally {
-            session.close();
         }
     }
 
     @SuppressWarnings("deprecation")
 	public void update(JewelryType jewelryType) {
-        Session session = DAO.getSession();
-        Transaction transaction = null;
         try {
-            transaction = session.beginTransaction();
-            session.update(jewelryType);
-            transaction.commit();
+            DAO.begin();
+            DAO.getSession().update(jewelryType);
+            DAO.commit();
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            DAO.rollback();
             throw e;
-        } finally {
-            session.close();
         }
     }
 
     @SuppressWarnings("deprecation")
 	public void delete(Integer id) {
-        Session session = DAO.getSession();
-        Transaction transaction = null;
         try {
-            transaction = session.beginTransaction();
-            JewelryType jewelryType = session.get(JewelryType.class, id);
+            DAO.begin();
+            JewelryType jewelryType = DAO.getSession().get(JewelryType.class, id);
             if (jewelryType != null) {
-                session.delete(jewelryType);
+                DAO.getSession().delete(jewelryType);
             }
-            transaction.commit();
+            DAO.commit();
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            DAO.rollback();
             throw e;
-        } finally {
-            session.close();
         }
     }
 }

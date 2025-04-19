@@ -3,7 +3,6 @@ package edu.sfu.lab5.dao;
 import edu.sfu.lab5.manager.DAO;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import org.hibernate.Session;
 
 import java.util.List;
@@ -16,11 +15,18 @@ public abstract class BaseDAO<T> {
     }
 
     public List<T> getAll() {
-        Session session = DAO.getSession();
-        CriteriaBuilder builder = session.getCriteriaBuilder();
-        CriteriaQuery<T> criteria = builder.createQuery(entityClass);
-        Root<T> root = criteria.from(entityClass);
-        criteria.select(root);
-        return session.createQuery(criteria).getResultList();
+        try {
+            DAO.begin();
+            Session session = DAO.getSession();
+            CriteriaBuilder builder = session.getCriteriaBuilder();
+            CriteriaQuery<T> criteria = builder.createQuery(entityClass);
+            criteria.from(entityClass);
+            List<T> result = session.createQuery(criteria).getResultList();
+            DAO.commit();
+            return result;
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
+        }
     }
 }

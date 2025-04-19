@@ -20,16 +20,12 @@ public class Main {
             JewelryTypeDAO jewelryTypeDAO = new JewelryTypeDAO();
             
             // Получение всех стран
-            DAO.begin();
             List<Country> countries = countryDAO.getAll();
-            DAO.commit();
             System.out.println("Countries:");
             countries.forEach(c -> System.out.println(c.getName()));
             
             // Получение всех типов украшений
-            DAO.begin();
             List<JewelryType> types = jewelryTypeDAO.getAll();
-            DAO.commit();
             System.out.println("Jewelry Types:");
             types.forEach(t -> System.out.println(t.getName()));
             
@@ -37,7 +33,6 @@ public class Main {
             JewelryService jewelryService = new JewelryService();
             
             // Пример 1: Фильтр по цене и типу (первые 20)
-            DAO.begin();
             List<Jewelry> results1 = jewelryService.searchJewelry(
                 null,
                 new BigDecimal("100.00"),
@@ -45,12 +40,10 @@ public class Main {
                 2,
                 null
             );
-            DAO.commit();
             System.out.println("Пример 1: Украшения типа кольцо с ценой 100-500");
             jewelryService.printJewelryList(results1);
             
             // Пример 2: Фильтр по названию и производителю
-            DAO.begin();
             List<Jewelry> results2 = jewelryService.searchJewelry(
                 "кольцо",
                 null,
@@ -58,15 +51,13 @@ public class Main {
                 null,
                 "Tiffany"
             );
-            DAO.commit();
             System.out.println("\nПример 2: Украшения типа кольцо от Tiffany");
             jewelryService.printJewelryList(results2);
             
             // 5. Дорогие украшения с камнями
             JewelryDAO jewelryDAO = new JewelryDAO();
-            DAO.begin();
             List<Object[]> expensiveJewelry_page1 = jewelryDAO.findExpensiveGemstoneJewelry(0, 20);
-            DAO.commit();
+   
             
             System.out.println("\nДорогие украшения с камнями:");
             for (Object[] row : expensiveJewelry_page1) {
@@ -76,15 +67,11 @@ public class Main {
             
             // 7. Демонстрация один-ко-многим
             DemoService demoService = new DemoService();
-            DAO.begin();
             demoService.demonstrateOneToManyWithDbPagination(10);// 10 элементов на страницу
-            DAO.commit();
             
         } catch (Exception e) {
-            DAO.rollback();
             e.printStackTrace();
         } finally {
-            // Закрываем SessionFactory  в самом конце
             DAO.shutdown();
         }
     }

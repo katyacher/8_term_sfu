@@ -1,11 +1,12 @@
 package edu.sfu.lab5.services;
 
 import edu.sfu.lab5.dao.JewelryDAO;
+import edu.sfu.lab5.manager.DAO;
 import edu.sfu.lab5.model.Jewelry;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class JewelryService { //бизнес-логика
+public class JewelryService {
     private final JewelryDAO jewelryDAO;
 
     public JewelryService() {
@@ -18,11 +19,20 @@ public class JewelryService { //бизнес-логика
                                      BigDecimal maxPrice,
                                      Integer typeId,
                                      String manufacturer) {
-    	 // Стандартная пагинация (первые 20 записей)
-        return jewelryDAO.findWithFilters(name, minPrice, maxPrice, typeId, manufacturer, 0, 20);
+        try {
+            DAO.begin();
+            // Стандартная пагинация (первые 20 записей)
+            List<Jewelry> result = jewelryDAO.findWithFilters(
+                name, minPrice, maxPrice, typeId, manufacturer, 0, 20);
+            DAO.commit();
+            return result;
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
+        }
     }
 
-    // Метод для вывода результатов
+    // Метод для вывода результатов (не требует транзакции)
     public void printJewelryList(List<Jewelry> jewelryList) {
         if (jewelryList.isEmpty()) {
             System.out.println("Ничего не найдено");

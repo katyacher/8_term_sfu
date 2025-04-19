@@ -1,122 +1,145 @@
 package edu.sfu.lab5.services;
 
 import edu.sfu.lab5.dao.*;
+import edu.sfu.lab5.manager.DAO;
 import edu.sfu.lab5.model.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Scanner;
 
-import org.springframework.transaction.annotation.Transactional;
 
 public class DemoService {
     private final CountryDAO countryDAO = new CountryDAO();
     private final JewelryDAO jewelryDAO = new JewelryDAO();
     private final JewelryTypeDAO jewelryTypeDAO = new JewelryTypeDAO();
     private final MaterialDAO materialDAO = new MaterialDAO();
-
+/*
     public void demonstrateOneToMany() {
-        // 1. Загружаем или создаем необходимые справочные данные
-       // initializeReferenceData();
-        
+        initializeReferenceData(); 
         // 2. Создаем и сохраняем украшения
-        List<Jewelry> createdJewelry = createAndSaveJewelries();
-        
+        List<Jewelry> createdJewelry = createAndSaveJewelries(); 
         // 3. Получаем и выводим результаты
         printResults(createdJewelry, 0, createdJewelry.size()); // Выводим все записи
     }
-    
-    @Transactional
-    public void demonstrateOneToManyWithDbPagination(int pageSize) {
-        initializeReferenceData();
-        createAndSaveJewelries();
-        
-        int page = 0;
-        boolean hasMore = true;
-        
-        while (hasMore) {
-            List<Jewelry> pageData = jewelryDAO.findByCountryIdWithPagination(1, page, pageSize);
-            
-            if (pageData.isEmpty()) {
-                hasMore = false;
-            } else {
-                printResults(pageData, page, pageSize);
-                page++;
-                
-                if (!pageData.isEmpty() && pageData.size() == pageSize) {
-                    System.out.println("\nНажмите Enter для следующей страницы...");
-                    new Scanner(System.in).nextLine();
-                }
-            }
-        }
+*/    
+
+    @SuppressWarnings("resource")
+	public void demonstrateOneToManyWithDbPagination(int pageSize) {
+    	 try {
+             DAO.begin();
+	    	// 1. Загружаем или создаем необходимые справочные данные
+	        initializeReferenceData();
+	       // 2. Создаем украшения
+	        createAndSaveJewelries();
+	        
+	        int page = 0;
+	        boolean hasMore = true;
+	        
+	        while (hasMore) {
+	        	// 3. Получаем и выводим результаты
+	            List<Jewelry> pageData = jewelryDAO.findByCountryIdWithPagination(1, page, pageSize);
+	            
+	            if (pageData.isEmpty()) {
+	                hasMore = false;
+	            } else {
+	                printResults(pageData, page, pageSize);
+	                page++;
+	                
+	                if (!pageData.isEmpty() && pageData.size() == pageSize) {
+	                    System.out.println("\nНажмите Enter для следующей страницы...");
+	                    new Scanner(System.in).nextLine();
+	                }
+	            }
+	        }
+	        DAO.commit();
+         } catch (Exception e) {
+             DAO.rollback();
+             throw e;
+         }
     }
 
     private void initializeReferenceData() {
-        // Создаем страну, если не существует
-        if (countryDAO.getById(1) == null) {
-            Country russia = new Country();
-            russia.setId(1);
-            russia.setName("Россия");
-            russia.setCode("RU");
-            countryDAO.save(russia);
-        }
-
-        // Создаем тип украшения, если не существует
-        if (jewelryTypeDAO.getById(1) == null) {
-            JewelryType ringType = new JewelryType();
-            ringType.setId(1);
-            ringType.setName("Кольцо");
-            jewelryTypeDAO.save(ringType);
-        }
-
-        // Создаем материалы, если не существуют
-        if (materialDAO.getById(1) == null) {
-            Material gold = new Material();
-            gold.setId(1);
-            gold.setName("Золото");
-            gold.setType("metal");
-            gold.setCarat(new BigDecimal("24.00"));
-            materialDAO.save(gold);
-        }
-
-        if (materialDAO.getById(2) == null) {
-            Material diamond = new Material();
-            diamond.setId(2);
-            diamond.setName("Бриллиант");
-            diamond.setType("gemstone");
-            diamond.setCarat(new BigDecimal("1.00"));
-            diamond.setQuality("VS1");
-            materialDAO.save(diamond);
-        }
+    	 try {
+             DAO.begin();
+	        // Создаем страну, если не существует
+	        if (countryDAO.getById(1) == null) {
+	            Country russia = new Country();
+	            russia.setId(1);
+	            russia.setName("Россия");
+	            russia.setCode("RU");
+	            countryDAO.save(russia);
+	        }
+	
+	        // Создаем тип украшения, если не существует
+	        if (jewelryTypeDAO.getById(1) == null) {
+	            JewelryType ringType = new JewelryType();
+	            ringType.setId(1);
+	            ringType.setName("Кольцо");
+	            jewelryTypeDAO.save(ringType);
+	        }
+	
+	        // Создаем материалы, если не существуют
+	        if (materialDAO.getById(1) == null) {
+	            Material gold = new Material();
+	            gold.setId(1);
+	            gold.setName("Золото");
+	            gold.setType("metal");
+	            gold.setCarat(new BigDecimal("24.00"));
+	            materialDAO.save(gold);
+	        }
+	
+	        if (materialDAO.getById(2) == null) {
+	            Material diamond = new Material();
+	            diamond.setId(2);
+	            diamond.setName("Бриллиант");
+	            diamond.setType("gemstone");
+	            diamond.setCarat(new BigDecimal("1.00"));
+	            diamond.setQuality("VS1");
+	            materialDAO.save(diamond);
+	        }
+	        DAO.commit();
+         } catch (Exception e) {
+             DAO.rollback();
+             throw e;
+         }
     }
 
     private List<Jewelry> createAndSaveJewelries() {
-        List<Jewelry> jewelries = new ArrayList<>();
-        
-        // Первое украшение (золотое кольцо)
-        Jewelry goldRing = createJewelry(
-            "Золотое кольцо",
-            new BigDecimal("999.99"),
-            new BigDecimal("5.75"),
-            "Русские золотые изделия",
-            1, // countryId (Россия)
-            1, // typeId (Кольцо)
-            Set.of(1) // materials (Золото)
-        );
-        jewelries.add(goldRing);
-
-        // Второе украшение (кольцо с бриллиантом)
-        Jewelry diamondRing = createJewelry(
-            "Кольцо с бриллиантом",
-            new BigDecimal("2500.00"),
-            new BigDecimal("3.50"),
-            "Tiffany & Co",
-            1, // countryId (Россия)
-            1, // typeId (Кольцо)
-            Set.of(1, 2) // materials (Золото + Бриллиант)
-        );
-        jewelries.add(diamondRing);
-
-        return jewelries;
+    	try {
+              DAO.begin();
+	        List<Jewelry> jewelries = new ArrayList<>();
+	        
+	        // Первое украшение (золотое кольцо)
+	        Jewelry goldRing = createJewelry(
+	            "Золотое кольцо",
+	            new BigDecimal("999.99"),
+	            new BigDecimal("5.75"),
+	            "Русские золотые изделия",
+	            1, // countryId (Россия)
+	            1, // typeId (Кольцо)
+	            Set.of(1) // materials (Золото)
+	        );
+	        jewelries.add(goldRing);
+	
+	        // Второе украшение (кольцо с бриллиантом)
+	        Jewelry diamondRing = createJewelry(
+	            "Кольцо с бриллиантом",
+	            new BigDecimal("2500.00"),
+	            new BigDecimal("3.50"),
+	            "Tiffany & Co",
+	            1, // countryId (Россия)
+	            1, // typeId (Кольцо)
+	            Set.of(1, 2) // materials (Золото + Бриллиант)
+	        );
+	        jewelries.add(diamondRing);
+	
+	        DAO.commit();
+            return jewelries;
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
+        }
     }
 
     private Jewelry createJewelry(String name, BigDecimal price, BigDecimal weight,
@@ -192,7 +215,7 @@ public class DemoService {
         }
     }
     */
- // Обновленный метод с пагинацией
+ // вывод с пагинацией
     private void printResults(List<Jewelry> jewelryList, int page, int pageSize) {
         System.out.println("\n=== Результаты демонстрации ===");
         

@@ -4,7 +4,6 @@ package edu.sfu.lab5.dao;
 import edu.sfu.lab5.manager.DAO;
 import edu.sfu.lab5.model.Country;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import java.util.List;
 
 public class CountryDAO extends BaseDAO<Country> {
@@ -14,72 +13,67 @@ public class CountryDAO extends BaseDAO<Country> {
     
 
     public Country getById(Integer id) {
-        Session session = DAO.getSession();
-        try {
-            return session.get(Country.class, id);
-        } finally {
-            session.close();
-        }
+    	 try {
+             DAO.begin();
+             Country country = DAO.getSession().get(Country.class, id);
+             DAO.commit();
+             return country;
+         } catch (Exception e) {
+             DAO.rollback();
+             throw e;
+         }
     }
 
     public List<Country> getAll() {
-        Session session = DAO.getSession();
         try {
-            return session.createQuery("FROM Country", Country.class).getResultList();
-        } finally {
-            session.close();
+        	DAO.begin();
+        	List<Country> countries = DAO.getSession().createQuery("FROM Country", Country.class).getResultList();
+        	DAO.commit();
+            return countries;
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
         }
     }
 
     @SuppressWarnings("deprecation")
 	public Integer save(Country country) {
-        Session session = DAO.getSession();
-        Transaction transaction = null;
-        try {
-            transaction = session.beginTransaction();
-            Integer id = (Integer) session.save(country);
-            transaction.commit();
+    	try {
+            DAO.begin();
+            Integer id = (Integer) DAO.getSession().save(country);
+            DAO.commit();
             return id;
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            DAO.rollback();
             throw e;
-        } finally {
-            session.close();
         }
     }
 
     @SuppressWarnings("deprecation")
 	public void update(Country country) {
-        Session session = DAO.getSession();
-        Transaction transaction = null;
         try {
-            transaction = session.beginTransaction();
-            session.update(country);
-            transaction.commit();
+            DAO.begin();
+            DAO.getSession().update(country);
+            DAO.commit();
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            DAO.rollback();
             throw e;
-        } finally {
-            session.close();
         }
     }
 
     @SuppressWarnings("deprecation")
 	public void delete(Integer id) {
-        Session session = DAO.getSession();
-        Transaction transaction = null;
         try {
-            transaction = session.beginTransaction();
+            DAO.begin();
+            Session session = DAO.getSession();
             Country country = session.get(Country.class, id);
             if (country != null) {
                 session.delete(country);
             }
-            transaction.commit();
+            DAO.commit();
         } catch (Exception e) {
-            if (transaction != null) transaction.rollback();
+            DAO.rollback();
             throw e;
-        } finally {
-            session.close();
         }
     }
 }

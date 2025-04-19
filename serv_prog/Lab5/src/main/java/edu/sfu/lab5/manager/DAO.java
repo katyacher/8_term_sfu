@@ -3,69 +3,71 @@ package edu.sfu.lab5.manager;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import edu.sfu.lab5.model.*;
 
 public class DAO {
     private static final SessionFactory sessionFactory = buildSessionFactory();
-    private static Session currentSession;
-    private static Transaction currentTransaction;
+    private static final ThreadLocal<Session> currentSession = new ThreadLocal<>();
+    private static final ThreadLocal<Transaction> currentTransaction = new ThreadLocal<>();
 
     private static SessionFactory buildSessionFactory() {
         try {
-            return new Configuration()
-                .configure("hibernate.cfg.xml")
-                .addAnnotatedClass(Country.class)
-                .addAnnotatedClass(JewelryType.class)
-                .addAnnotatedClass(Material.class)
-                .addAnnotatedClass(Jewelry.class)
-                .addAnnotatedClass(Customer.class)
-                .addAnnotatedClass(Order.class)
-                .buildSessionFactory();
-        } catch (Throwable ex) {
+            Configuration configuration = new Configuration().configure();
+            StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
+                .applySettings(configuration.getProperties());
+            return configuration.buildSessionFactory(builder.build());
+        } catch (Exception ex) {
+            System.err.println("Initial SessionFactory creation failed." + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
 
     public static Session getSession() {
-        if (currentSession == null || !currentSession.isOpen()) {
-            currentSession = sessionFactory.openSession();
+        Session session = currentSession.get();
+        if (session == null || !session.isOpen()) {
+            session = sessionFactory.openSession();
+            currentSession.set(session);
         }
-        return currentSession;
+        return session;
     }
 
     public static void begin() {
-        if (currentTransaction == null || !currentTransaction.isActive()) {
-            currentTransaction = getSession().beginTransaction();
+        Transaction transaction = currentTransaction.get();
+        if (transaction == null) {
+            transaction = getSession().beginTransaction();
+            currentTransaction.set(transaction);
         }
     }
 
     public static void commit() {
-        if (currentTransaction != null && currentTransaction.isActive()) {
-            currentTransaction.commit();
+        Transaction transaction = currentTransaction.get();
+        if (transaction != null && transaction.isActive()) {
+            transaction.commit();
+            currentTransaction.remove();
+            closeSession();
         }
-        closeSession();
     }
 
     public static void rollback() {
-        if (currentTransaction != null && currentTransaction.isActive()) {
-            currentTransaction.rollback();
+        Transaction transaction = currentTransaction.get();
+        if (transaction != null && transaction.isActive()) {
+            transaction.rollback();
+            currentTransaction.remove();
+            closeSession();
         }
-        closeSession();
     }
 
     public static void closeSession() {
-        if (currentSession != null && currentSession.isOpen()) {
-            currentSession.close();
+        Session session = currentSession.get();
+        if (session != null && session.isOpen()) {
+            session.close();
+            currentSession.remove();
         }
-        currentSession = null;
-        currentTransaction = null;
     }
 
     public static void shutdown() {
-        closeSession();
-        if (sessionFactory != null && !sessionFactory.isClosed()) {
-            sessionFactory.close();
-        }
+        sessionFactory.close();
     }
 }
