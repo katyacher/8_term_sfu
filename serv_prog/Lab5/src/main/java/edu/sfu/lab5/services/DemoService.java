@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 public class DemoService {
     private final CountryDAO countryDAO = new CountryDAO();
     private final JewelryDAO jewelryDAO = new JewelryDAO();
@@ -14,13 +16,38 @@ public class DemoService {
 
     public void demonstrateOneToMany() {
         // 1. Загружаем или создаем необходимые справочные данные
-        initializeReferenceData();
+       // initializeReferenceData();
         
         // 2. Создаем и сохраняем украшения
         List<Jewelry> createdJewelry = createAndSaveJewelries();
         
         // 3. Получаем и выводим результаты
-        printResults(createdJewelry);
+        printResults(createdJewelry, 0, createdJewelry.size()); // Выводим все записи
+    }
+    
+    @Transactional
+    public void demonstrateOneToManyWithDbPagination(int pageSize) {
+        initializeReferenceData();
+        createAndSaveJewelries();
+        
+        int page = 0;
+        boolean hasMore = true;
+        
+        while (hasMore) {
+            List<Jewelry> pageData = jewelryDAO.findByCountryIdWithPagination(1, page, pageSize);
+            
+            if (pageData.isEmpty()) {
+                hasMore = false;
+            } else {
+                printResults(pageData, page, pageSize);
+                page++;
+                
+                if (!pageData.isEmpty() && pageData.size() == pageSize) {
+                    System.out.println("\nНажмите Enter для следующей страницы...");
+                    new Scanner(System.in).nextLine();
+                }
+            }
+        }
     }
 
     private void initializeReferenceData() {
@@ -134,7 +161,7 @@ public class DemoService {
 
         return jewelry;
     }
-
+/*
     private void printResults(List<Jewelry> jewelryList) {
         System.out.println("\n=== Результаты демонстрации ===");
         
@@ -164,9 +191,48 @@ public class DemoService {
                 materials);
         }
     }
+    */
+ // Обновленный метод с пагинацией
+    private void printResults(List<Jewelry> jewelryList, int page, int pageSize) {
+        System.out.println("\n=== Результаты демонстрации ===");
+        
+        if (jewelryList.isEmpty()) {
+            System.out.println("Ничего не найдено");
+            return;
+        }
 
-    public static void main(String[] args) {
-        DemoService demoService = new DemoService();
-        demoService.demonstrateOneToMany();
+        // Рассчитываем границы пагинации
+        int start = page * pageSize;
+        int end = Math.min(start + pageSize, jewelryList.size());
+        
+        if (start >= jewelryList.size()) {
+            System.out.println("Нет данных для отображения на странице " + (page + 1));
+            return;
+        }
+
+        System.out.printf("Страница %d (записи %d-%d из %d):\n", 
+            page + 1, start + 1, end, jewelryList.size());
+        System.out.println("-------------------------------------------------------------");
+        System.out.printf("%-3s | %-20s | %-8s | %-6s | %-15s | %-10s | Материалы%n",
+            "ID", "Название", "Цена", "Вес", "Производитель", "Тип");
+        System.out.println("-------------------------------------------------------------");
+
+        for (int i = start; i < end; i++) {
+            Jewelry jewelry = jewelryList.get(i);
+            String materials = jewelry.getMaterials().stream()
+                .map(Material::getName)
+                .collect(Collectors.joining(", "));
+            
+            System.out.printf("%-3d | %-20s | %-8.2f | %-6.2f | %-15s | %-10s | %s%n",
+                jewelry.getId(),
+                jewelry.getName(),
+                jewelry.getPrice(),
+                jewelry.getWeight(),
+                jewelry.getManufacturer(),
+                jewelry.getType().getName(),
+                materials);
+        }
     }
 }
+
+

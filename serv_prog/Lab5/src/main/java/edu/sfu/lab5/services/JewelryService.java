@@ -5,7 +5,7 @@ import edu.sfu.lab5.model.Jewelry;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class JewelryService {
+public class JewelryService { //бизнес-логика
     private final JewelryDAO jewelryDAO;
 
     public JewelryService() {
@@ -18,7 +18,8 @@ public class JewelryService {
                                      BigDecimal maxPrice,
                                      Integer typeId,
                                      String manufacturer) {
-        return jewelryDAO.findWithFilters(name, minPrice, maxPrice, typeId, manufacturer);
+    	 // Стандартная пагинация (первые 20 записей)
+        return jewelryDAO.findWithFilters(name, minPrice, maxPrice, typeId, manufacturer, 0, 20);
     }
 
     // Метод для вывода результатов

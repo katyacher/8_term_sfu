@@ -20,11 +20,16 @@ public class JewelryTypeDAO extends BaseDAO<JewelryType> {
     }
 
     public List<JewelryType> getAll() {
-        Session session = DAO.getSession();
         try {
-            return session.createQuery("FROM JewelryType", JewelryType.class).getResultList();
-        } finally {
-            session.close();
+            DAO.begin();
+            List<JewelryType> result = DAO.getSession()
+                .createQuery("FROM JewelryType", JewelryType.class)
+                .getResultList();
+            DAO.commit();
+            return result;
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
         }
     }
 

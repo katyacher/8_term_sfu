@@ -2,17 +2,18 @@ package edu.sfu.lab5.manager;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-
 import edu.sfu.lab5.model.*;
 
 public class DAO {
-    protected static ThreadLocal<Session> session = new ThreadLocal<>();
-    protected static SessionFactory sessionFactory;
-    
-    static {
+    private static final SessionFactory sessionFactory = buildSessionFactory();
+    private static Session currentSession;
+    private static Transaction currentTransaction;
+
+    private static SessionFactory buildSessionFactory() {
         try {
-            sessionFactory = new Configuration()
+            return new Configuration()
                 .configure("hibernate.cfg.xml")
                 .addAnnotatedClass(Country.class)
                 .addAnnotatedClass(JewelryType.class)
@@ -25,22 +26,46 @@ public class DAO {
             throw new ExceptionInInitializerError(ex);
         }
     }
-    
 
     public static Session getSession() {
-        Session currentSession = session.get();
-        if (currentSession == null) {
+        if (currentSession == null || !currentSession.isOpen()) {
             currentSession = sessionFactory.openSession();
-            session.set(currentSession);
         }
         return currentSession;
     }
 
     public static void begin() {
-        getSession().beginTransaction();
+        if (currentTransaction == null || !currentTransaction.isActive()) {
+            currentTransaction = getSession().beginTransaction();
+        }
     }
 
     public static void commit() {
-        getSession().getTransaction().commit();
+        if (currentTransaction != null && currentTransaction.isActive()) {
+            currentTransaction.commit();
+        }
+        closeSession();
+    }
+
+    public static void rollback() {
+        if (currentTransaction != null && currentTransaction.isActive()) {
+            currentTransaction.rollback();
+        }
+        closeSession();
+    }
+
+    public static void closeSession() {
+        if (currentSession != null && currentSession.isOpen()) {
+            currentSession.close();
+        }
+        currentSession = null;
+        currentTransaction = null;
+    }
+
+    public static void shutdown() {
+        closeSession();
+        if (sessionFactory != null && !sessionFactory.isClosed()) {
+            sessionFactory.close();
+        }
     }
 }

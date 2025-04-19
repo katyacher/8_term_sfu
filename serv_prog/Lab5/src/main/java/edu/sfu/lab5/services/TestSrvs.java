@@ -11,7 +11,7 @@ import java.util.List;
 public class TestSrvs extends DAO {
     
     // Получение имени страны по ID с использованием Criteria API
-    public static String getName(int id) {
+    public  String getName(int id) {
         Session session = getSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         
@@ -25,7 +25,7 @@ public class TestSrvs extends DAO {
     }
 
     // Получение списка имен в диапазоне ID с использованием Criteria API
-    public static List<String> getNamesInRange(int startId, int endId) {
+    public  List<String> getNamesInRange(int startId, int endId) {
         Session session = getSession();
         CriteriaBuilder builder = session.getCriteriaBuilder();
         
@@ -39,8 +39,7 @@ public class TestSrvs extends DAO {
     }
 
     // Создание новой записи с использованием Hibernate Entity Manager
-    public static int createCountry(String name, String code) {
-        begin();
+    public  int createCountry(String name, String code) {
         Session session = getSession();
         
         Country country = new Country();
@@ -48,8 +47,7 @@ public class TestSrvs extends DAO {
         country.setCode(code);
         
         session.persist(country);
-        commit();
-        
+      
         return 1; // Возвращаем 1, так как одна запись была создана
     }
     
