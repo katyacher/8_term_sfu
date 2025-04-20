@@ -70,7 +70,6 @@ public class Main {
             
             // 7. Демонстрация один-ко-многим
             DemoService demoService = new DemoService();
-            //demoService.demonstrateOneToManyWithDbPagination(10);// 10 элементов на страницу
             demoService.demonstrateOneToMany(10);
             
         } catch (Exception e) {

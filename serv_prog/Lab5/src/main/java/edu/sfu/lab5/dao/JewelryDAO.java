@@ -231,29 +231,6 @@ public class JewelryDAO extends BaseDAO<Jewelry> {
         }
     }
 
-    public List<Jewelry> findByCountryIdWithPagination(Integer countryId, int page, int size) {
-        try {
-            DAO.begin();
-            Session session = DAO.getSession();
-            CriteriaBuilder cb = session.getCriteriaBuilder();
-            CriteriaQuery<Jewelry> cq = cb.createQuery(Jewelry.class);
-            Root<Jewelry> root = cq.from(Jewelry.class);
-            
-            cq.where(cb.equal(root.get("country").get("id"), countryId));
-            cq.orderBy(cb.asc(root.get("id")));
-            
-            List<Jewelry> result = session.createQuery(cq)
-                .setFirstResult(page * size)
-                .setMaxResults(size)
-                .getResultList();
-            DAO.commit();
-            return result;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
-    }
-    
     public List<Jewelry> findFirstNByCountryId(Integer countryId, int limit) {
         try {
             DAO.begin();
