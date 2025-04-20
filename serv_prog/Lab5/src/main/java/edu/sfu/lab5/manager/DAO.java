@@ -3,26 +3,35 @@ package edu.sfu.lab5.manager;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import edu.sfu.lab5.model.*;
+
 
 public class DAO {
-    private static final SessionFactory sessionFactory = buildSessionFactory();
+    //private static final SessionFactory sessionFactory = buildSessionFactory();
+	private static final SessionFactory sessionFactory;
     private static final ThreadLocal<Session> currentSession = new ThreadLocal<>();
     private static final ThreadLocal<Transaction> currentTransaction = new ThreadLocal<>();
 
-    private static SessionFactory buildSessionFactory() {
+    static {
         try {
-            Configuration configuration = new Configuration().configure();
-            StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
-                .applySettings(configuration.getProperties());
-            return configuration.buildSessionFactory(builder.build());
+            StandardServiceRegistry registry = new StandardServiceRegistryBuilder()
+                .configure() // loads hibernate.cfg.xml
+                .build();
+            
+            sessionFactory = new MetadataSources(registry)
+                .addAnnotatedClass(edu.sfu.lab5.model.Country.class)
+                .addAnnotatedClass(edu.sfu.lab5.model.JewelryType.class)
+                // добавьте все остальные сущности
+                .buildMetadata()
+                .buildSessionFactory();
         } catch (Exception ex) {
-            System.err.println("Initial SessionFactory creation failed." + ex);
+            System.err.println("Initial SessionFactory creation failed: " + ex);
             throw new ExceptionInInitializerError(ex);
         }
     }
+    
 
     public static Session getSession() {
         Session session = currentSession.get();

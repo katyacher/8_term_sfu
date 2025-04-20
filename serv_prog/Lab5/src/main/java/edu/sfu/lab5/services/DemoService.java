@@ -14,15 +14,33 @@ public class DemoService {
     private final JewelryDAO jewelryDAO = new JewelryDAO();
     private final JewelryTypeDAO jewelryTypeDAO = new JewelryTypeDAO();
     private final MaterialDAO materialDAO = new MaterialDAO();
-/*
+
+    public void demonstrateOneToMany(int limit) {
+    	try {
+            DAO.begin();
+	    	// 1. Загружаем или создаем необходимые справочные данные
+	        initializeReferenceData(); 
+	        // 2. Получаем и выводим первые N записей
+	        List<Jewelry> jewelryList = jewelryDAO.findFirstNByCountryId(1, limit);
+	        printResults(jewelryList); 
+	        DAO.commit();
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
+        }
+	        
+    }
+    
+    /*   
     public void demonstrateOneToMany() {
+    	// 1. Загружаем или создаем необходимые справочные данные
         initializeReferenceData(); 
         // 2. Создаем и сохраняем украшения
         List<Jewelry> createdJewelry = createAndSaveJewelries(); 
         // 3. Получаем и выводим результаты
         printResults(createdJewelry, 0, createdJewelry.size()); // Выводим все записи
     }
-*/    
+    
 
     @SuppressWarnings("resource")
 	public void demonstrateOneToManyWithDbPagination(int pageSize) {
@@ -58,7 +76,8 @@ public class DemoService {
              throw e;
          }
     }
-
+*/
+    
     private void initializeReferenceData() {
     	 try {
              DAO.begin();
@@ -214,7 +233,7 @@ public class DemoService {
                 materials);
         }
     }
-    */
+   
  // вывод с пагинацией
     private void printResults(List<Jewelry> jewelryList, int page, int pageSize) {
         System.out.println("\n=== Результаты демонстрации ===");
@@ -255,6 +274,62 @@ public class DemoService {
                 jewelry.getType().getName(),
                 materials);
         }
+    }
+    
+    //Лимитированный вывод записей
+    private void printResults(List<Jewelry> jewelryList) {
+        System.out.println("\n=== Результаты демонстрации (первые " + jewelryList.size() + " записей) ===");
+        
+        if (jewelryList.isEmpty()) {
+            System.out.println("Ничего не найдено");
+            return;
+        }
+
+        System.out.println("-------------------------------------------------------------");
+        System.out.printf("%-3s | %-20s | %-8s | %-6s | %-15s | %-10s | Материалы%n",
+            "ID", "Название", "Цена", "Вес", "Производитель", "Тип");
+        System.out.println("-------------------------------------------------------------");
+
+        for (Jewelry jewelry : jewelryList) {
+            String materials = jewelry.getMaterials().stream()
+                .map(Material::getName)
+                .collect(Collectors.joining(", "));
+            
+            System.out.printf("%-3d | %-20s | %-8.2f | %-6.2f | %-15s | %-10s | %s%n",
+                jewelry.getId(),
+                jewelry.getName(),
+                jewelry.getPrice(),
+                jewelry.getWeight(),
+                jewelry.getManufacturer(),
+                jewelry.getType().getName(),
+                materials);
+        }
+    }
+     */
+    private void printResults(List<Jewelry> jewelryList) {
+        System.out.println("\n=== Демонстрация связи Country -> Jewelry (OneToMany) ===");
+        System.out.println("Вывод первых " + jewelryList.size() + " украшений для страны:");
+        
+        if (!jewelryList.isEmpty()) {
+            Country country = jewelryList.get(0).getCountry();
+            System.out.println("\nСтрана: " + country.getName() + " (" + country.getCode() + ")");
+        }
+
+        System.out.println("-------------------------------------------------------------");
+        System.out.printf("%-5s | %-20s | %-10s | %-15s | Тип%n",
+            "ID", "Название", "Цена", "Производитель");
+        System.out.println("-------------------------------------------------------------");
+
+        for (Jewelry jewelry : jewelryList) {
+            System.out.printf("%-5d | %-20s | %-10.2f | %-15s | %s%n",
+                jewelry.getId(),
+                jewelry.getName(),
+                jewelry.getPrice(),
+                jewelry.getManufacturer(),
+                jewelry.getType().getName());
+        }
+        
+        System.out.println("\nОбщее количество украшений для страны: " + jewelryList.size());
     }
 }
 

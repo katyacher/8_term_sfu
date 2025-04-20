@@ -33,7 +33,7 @@ public class Jewelry {
     @JoinColumn(name = "country_id")
     private Country country;
     
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER) // Измените LAZY на EAGER
     @JoinTable(
         name = "jewelryMaterial",
         joinColumns = @JoinColumn(name = "jewelry_id"),

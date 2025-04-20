@@ -5,6 +5,9 @@ import edu.sfu.lab5.model.Country;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.metamodel.EntityType;
+import jakarta.persistence.metamodel.Metamodel;
+
 import java.util.List;
 
 import org.hibernate.Session;
@@ -18,8 +21,14 @@ public class TestSrvs {
             DAO.begin();
             System.out.println("DEBUG: Transaction started");
             Session session = DAO.getSession();
-            CriteriaBuilder builder = session.getCriteriaBuilder();
             
+
+            // Проверка метамодели
+            Metamodel metamodel = session.getMetamodel();
+            EntityType<Country> countryEntity = metamodel.entity(Country.class);
+            System.out.println("Country entity detected: " + countryEntity);
+            
+            CriteriaBuilder builder = session.getCriteriaBuilder();
             CriteriaQuery<String> criteria = builder.createQuery(String.class);
             Root<Country> root = criteria.from(Country.class);
             

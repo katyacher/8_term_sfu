@@ -253,4 +253,33 @@ public class JewelryDAO extends BaseDAO<Jewelry> {
             throw e;
         }
     }
+    
+    public List<Jewelry> findFirstNByCountryId(Integer countryId, int limit) {
+        try {
+            DAO.begin();
+            Session session = DAO.getSession();
+            
+            CriteriaBuilder cb = session.getCriteriaBuilder();
+            CriteriaQuery<Jewelry> cq = cb.createQuery(Jewelry.class);
+            Root<Jewelry> root = cq.from(Jewelry.class);
+            
+            // Явно подгружаем связанные сущности
+            root.fetch("materials", JoinType.LEFT);
+            root.fetch("type", JoinType.LEFT);
+            root.fetch("country", JoinType.LEFT);
+            
+            cq.where(cb.equal(root.get("country").get("id"), countryId));
+            cq.orderBy(cb.asc(root.get("id")));
+            
+            List<Jewelry> result = session.createQuery(cq)
+                .setMaxResults(limit)
+                .getResultList();
+                
+            DAO.commit();
+            return result;
+        } catch (Exception e) {
+            DAO.rollback();
+            throw e;
+        }
+    }
 }

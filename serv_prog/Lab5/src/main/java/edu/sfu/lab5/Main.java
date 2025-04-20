@@ -58,16 +58,20 @@ public class Main {
             JewelryDAO jewelryDAO = new JewelryDAO();
             List<Object[]> expensiveJewelry_page1 = jewelryDAO.findExpensiveGemstoneJewelry(0, 20);
    
-            
             System.out.println("\nДорогие украшения с камнями:");
+            System.out.println("--------------------------------------------------");
+            System.out.printf("%-5s | %-20s | %-10s |  %-20s%n",
+                "ID", "Название", "Цена", "Материал");
+            System.out.println("--------------------------------------------------");
             for (Object[] row : expensiveJewelry_page1) {
-                System.out.printf("ID: %d, Название: %s, Цена: %.2f, Материал: %s%n",
+                System.out.printf("%-5d | %-20s | %-10.2f | %-20s%n",
                     row[0], row[1], row[2], row[4]);
             }
             
             // 7. Демонстрация один-ко-многим
             DemoService demoService = new DemoService();
-            demoService.demonstrateOneToManyWithDbPagination(10);// 10 элементов на страницу
+            //demoService.demonstrateOneToManyWithDbPagination(10);// 10 элементов на страницу
+            demoService.demonstrateOneToMany(10);
             
         } catch (Exception e) {
             e.printStackTrace();
