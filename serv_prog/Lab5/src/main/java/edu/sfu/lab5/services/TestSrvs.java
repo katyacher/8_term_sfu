@@ -16,10 +16,8 @@ public class TestSrvs {
     
     // Получение имени страны по ID с использованием Criteria API
     public String getName(int id) {
-    	System.out.println("DEBUG: Getting country with id=" + id);
         try {
             DAO.begin();
-            System.out.println("DEBUG: Transaction started");
             Session session = DAO.getSession();
             
 
@@ -39,7 +37,6 @@ public class TestSrvs {
             DAO.commit();
             return result;
         } catch (Exception e) {
-        	System.err.println("ERROR in getName: " + e.getMessage());
             DAO.rollback();
             throw e;
         }

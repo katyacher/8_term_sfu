@@ -6,7 +6,6 @@ import edu.sfu.lab5.model.*;
 import java.math.BigDecimal;
 import java.util.*;
 
-
 public class DemoService {
     private final CountryDAO countryDAO = new CountryDAO();
     private final JewelryDAO jewelryDAO = new JewelryDAO();

@@ -32,18 +32,18 @@ public class Main {
             // 3. Сервис с фильтрами
             JewelryService jewelryService = new JewelryService();
             
-            // Пример 1: Фильтр по цене и типу (первые 20)
+            // 1: Фильтр по цене и типу (первые 20)
             List<Jewelry> results1 = jewelryService.searchJewelry(
                 null,
                 new BigDecimal("100.00"),
                 new BigDecimal("500.00"),
-                2,
+                1,
                 null
             );
             System.out.println("Пример 1: Украшения типа кольцо с ценой 100-500");
             jewelryService.printJewelryList(results1);
             
-            // Пример 2: Фильтр по названию и производителю
+            //  2: Фильтр по названию и производителю
             List<Jewelry> results2 = jewelryService.searchJewelry(
                 "кольцо",
                 null,
@@ -51,7 +51,7 @@ public class Main {
                 null,
                 "Tiffany"
             );
-            System.out.println("\nПример 2: Украшения типа кольцо от Tiffany");
+            System.out.println("\nПример 2: Украшения с названием кольцо от Tiffany");
             jewelryService.printJewelryList(results2);
             
             // 5. Дорогие украшения с камнями
