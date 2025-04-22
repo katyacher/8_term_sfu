@@ -51,4 +51,8 @@ public class JewelryService {
                 jewelry.getType().getName());
         }
     }
+
+	public List<Object[]> findExpensiveJewelry(int firstResult, int maxResults) {
+		return jewelryDAO.findExpensiveGemstoneJewelry(firstResult, maxResults);
+	}
 }

@@ -1,5 +1,5 @@
 package edu.sfu.lab6;
-
+/*
 import edu.sfu.lab6.services.*;
 import edu.sfu.lab6.dao.*;
 import edu.sfu.lab6.model.*;
@@ -82,4 +82,6 @@ public class Main {
         	 context.close();
         }
     }
+    
 }
+*/

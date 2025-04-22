@@ -31,8 +31,8 @@ public class JewelryController {
     }
 
     @GetMapping("/expensive")
-    public List<Jewelry> getExpensiveJewelry() {
-        return jewelryService.findExpensiveJewelry();
+    public List<Object[]> getExpensiveJewelry(int firstResult, int maxResults) {
+        return jewelryService.findExpensiveJewelry(firstResult, maxResults);
     }
 }
 
