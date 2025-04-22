@@ -1,77 +1,54 @@
 package edu.sfu.lab6.dao;
 
-import edu.sfu.lab6.manager.DAO;
 import edu.sfu.lab6.model.Customer;
-import java.util.List;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+@Repository
+@Transactional
 public class CustomerDAO extends BaseDAO<Customer> {
+
     public CustomerDAO() {
         super(Customer.class);
     }
-    
-    public Customer getById(Integer id) {
-        try {
-            DAO.begin();
-            Customer customer = DAO.getSession().get(Customer.class, id);
-            DAO.commit();
-            return customer;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
+
+    public Customer findByEmail(String email) {
+        Session session = getSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Customer> cq = cb.createQuery(Customer.class);
+        Root<Customer> root = cq.from(Customer.class);
+
+        cq.where(cb.equal(root.get("email"), email));
+        return session.createQuery(cq).uniqueResult();
     }
 
-    public List<Customer> getAll() {
-        try {
-            DAO.begin();
-            List<Customer> customers = DAO.getSession()
-                .createQuery("FROM Customer", Customer.class)
-                .getResultList();
-            DAO.commit();
-            return customers;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
+    public Customer findByPhone(String phone) {
+        Session session = getSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<Customer> cq = cb.createQuery(Customer.class);
+        Root<Customer> root = cq.from(Customer.class);
+
+        cq.where(cb.equal(root.get("phone"), phone));
+        return session.createQuery(cq).uniqueResult();
     }
 
     @SuppressWarnings("deprecation")
 	public Integer save(Customer customer) {
-        try {
-            DAO.begin();
-            Integer id = (Integer) DAO.getSession().save(customer);
-            DAO.commit();
-            return id;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
+        return (Integer) getSession().save(customer);
     }
 
-    @SuppressWarnings("deprecation")
-	public void update(Customer customer) {
-        try {
-            DAO.begin();
-            DAO.getSession().update(customer);
-            DAO.commit();
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
+    public void update(Customer customer) {
+        getSession().merge(customer);
     }
 
-    @SuppressWarnings("deprecation")
-	public void delete(Integer id) {
-        try {
-            DAO.begin();
-            Customer customer = DAO.getSession().get(Customer.class, id);
-            if (customer != null) {
-                DAO.getSession().delete(customer);
-            }
-            DAO.commit();
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
+    public void delete(Integer id) {
+        Customer customer = getSession().get(Customer.class, id);
+        if (customer != null) {
+            getSession().remove(customer);
         }
     }
 }

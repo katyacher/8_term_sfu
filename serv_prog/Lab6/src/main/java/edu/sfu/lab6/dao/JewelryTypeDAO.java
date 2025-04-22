@@ -1,77 +1,31 @@
 package edu.sfu.lab6.dao;
 
-import edu.sfu.lab6.manager.DAO;
 import edu.sfu.lab6.model.JewelryType;
-import java.util.List;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
+
+@Repository
+@Transactional
 public class JewelryTypeDAO extends BaseDAO<JewelryType> {
+
     public JewelryTypeDAO() {
         super(JewelryType.class);
     }
 
-    public JewelryType getById(Integer id) {
-        try {
-            DAO.begin();
-            JewelryType jewelryType = DAO.getSession().get(JewelryType.class, id);
-            DAO.commit();
-            return jewelryType;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
-    }
-
-    public List<JewelryType> getAll() {
-        try {
-            DAO.begin();
-            List<JewelryType> result = DAO.getSession()
-                .createQuery("FROM JewelryType", JewelryType.class)
-                .getResultList();
-            DAO.commit();
-            return result;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
-    }
-
     @SuppressWarnings("deprecation")
 	public Integer save(JewelryType jewelryType) {
-        try {
-            DAO.begin();
-            Integer id = (Integer) DAO.getSession().save(jewelryType);
-            DAO.commit();
-            return id;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
+        return (Integer) getSession().save(jewelryType);
     }
 
-    @SuppressWarnings("deprecation")
-	public void update(JewelryType jewelryType) {
-        try {
-            DAO.begin();
-            DAO.getSession().update(jewelryType);
-            DAO.commit();
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
+    public void update(JewelryType jewelryType) {
+        getSession().merge(jewelryType);
     }
 
-    @SuppressWarnings("deprecation")
-	public void delete(Integer id) {
-        try {
-            DAO.begin();
-            JewelryType jewelryType = DAO.getSession().get(JewelryType.class, id);
-            if (jewelryType != null) {
-                DAO.getSession().delete(jewelryType);
-            }
-            DAO.commit();
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
+    public void delete(Integer id) {
+        JewelryType jewelryType = getSession().get(JewelryType.class, id);
+        if (jewelryType != null) {
+            getSession().remove(jewelryType);
         }
     }
 }

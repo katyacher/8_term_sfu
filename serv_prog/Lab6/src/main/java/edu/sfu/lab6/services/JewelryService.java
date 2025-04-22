@@ -1,38 +1,34 @@
 package edu.sfu.lab6.services;
 
 import edu.sfu.lab6.dao.JewelryDAO;
-import edu.sfu.lab6.manager.DAO;
 import edu.sfu.lab6.model.Jewelry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.util.List;
 
+@Service
+@Transactional
 public class JewelryService {
+
     private final JewelryDAO jewelryDAO;
 
-    public JewelryService() {
-        this.jewelryDAO = new JewelryDAO();
+    @Autowired
+    public JewelryService(JewelryDAO jewelryDAO) { // конструктор с внедрением зависимостей
+        this.jewelryDAO = jewelryDAO;
     }
 
-    // Метод-обертка для поиска с фильтрами
-    public List<Jewelry> searchJewelry(String name, 
+    public List<Jewelry> searchJewelry(String name,
                                      BigDecimal minPrice,
                                      BigDecimal maxPrice,
                                      Integer typeId,
                                      String manufacturer) {
-        try {
-            DAO.begin();
-            // Стандартная пагинация (первые 20 записей)
-            List<Jewelry> result = jewelryDAO.findWithFilters(
-                name, minPrice, maxPrice, typeId, manufacturer, 0, 20);
-            DAO.commit();
-            return result;
-        } catch (Exception e) {
-            DAO.rollback();
-            throw e;
-        }
+        return jewelryDAO.findWithFilters(
+            name, minPrice, maxPrice, typeId, manufacturer, 0, 20);
     }
 
-    // Метод для вывода результатов (не требует транзакции)
     public void printJewelryList(List<Jewelry> jewelryList) {
         if (jewelryList.isEmpty()) {
             System.out.println("Ничего не найдено");
