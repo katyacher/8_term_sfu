@@ -1,5 +1,5 @@
 package edu.sfu.lab6.config;
-
+/*
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -32,3 +32,4 @@ public class AppConfig {
         return properties;
     }
 }
+*/
