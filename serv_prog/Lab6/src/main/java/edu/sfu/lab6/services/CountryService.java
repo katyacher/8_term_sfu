@@ -1,8 +1,7 @@
 package edu.sfu.lab6.services;
 
-import edu.sfu.lab6.dao.CountryDAO;
+import edu.sfu.lab6.dao.CountryRepository;
 import edu.sfu.lab6.model.Country;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,36 +11,35 @@ import java.util.List;
 @Transactional
 public class CountryService {
 
-    private final CountryDAO countryDAO;
+    private final CountryRepository countryRepository;
 
-    public CountryService(CountryDAO countryDAO) {
-        this.countryDAO = countryDAO;
+    public CountryService(CountryRepository countryRepository) {
+        this.countryRepository = countryRepository;
     }
 
     public List<Country> getAllCountries() {
-        return countryDAO.getAll();
+        return countryRepository.findAll();
     }
 
     public Country getCountryById(Integer id) {
-        return countryDAO.getById(id);
+        return countryRepository.findById(id).orElse(null);
     }
 
     public Country createCountry(Country country) {
-        Integer id = countryDAO.save(country);
-        return countryDAO.getById(id);
+        return countryRepository.save(country);
     }
 
     public Country updateCountry(Integer id, Country country) {
-        Country existing = countryDAO.getById(id);
+        Country existing = countryRepository.findById(id).orElse(null);
         if (existing != null) {
             existing.setName(country.getName());
             existing.setCode(country.getCode());
-            countryDAO.update(existing);
+            return countryRepository.save(existing);
         }
-        return existing;
+        return null;
     }
 
     public void deleteCountry(Integer id) {
-        countryDAO.delete(id);
+        countryRepository.deleteById(id);
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")  // Базовый путь изменен на /api
+@RequestMapping("/api")  // Базовый путь 
 public class CountryController {
 
     private final CountryService countryService;
@@ -18,7 +18,7 @@ public class CountryController {
         this.countryService = countryService;
     }
 
-    @GetMapping("/countries")  // Полный путь теперь /api/countries
+    @GetMapping("/countries")  // Полный путь  /api/countries
     public ResponseEntity<?> getAllCountries() {
     	 List<Country> countries = countryService.getAllCountries();
     	 return ResponseEntity.ok(countries);

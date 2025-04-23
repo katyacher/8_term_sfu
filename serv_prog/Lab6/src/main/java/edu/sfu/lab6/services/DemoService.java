@@ -1,5 +1,5 @@
 package edu.sfu.lab6.services;
-
+/*
 import edu.sfu.lab6.dao.*;
 import edu.sfu.lab6.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,3 +100,4 @@ public class DemoService {
         System.out.println("\nОбщее количество украшений для страны: " + jewelryList.size());
     }
 }
+*/

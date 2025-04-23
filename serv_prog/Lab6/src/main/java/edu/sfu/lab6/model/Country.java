@@ -11,7 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Страна производитель")
 @Data // для автоматической генерации геттеров/сеттеров и других методов
 @Entity
-@Table(name = "Сountry")
+@Table(name = "country")
 public class Country {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
